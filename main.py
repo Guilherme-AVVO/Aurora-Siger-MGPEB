@@ -1,15 +1,15 @@
-
-fila = []
+# Cadastro fora de ordem de propósito, para a ordenação ter trabalho a fazer.
+# A posição na lista desempata módulos com a mesma prioridade (ordem de chegada).
 modulos = [
-    {"nome": "Logística Alfa",   "carga": "Logistica",       "crit": 1, "prio": 5, "massa": 12, "comb": 1800, "energia": 85, "sensores": True},
-    {"nome": "Energia",          "carga": "Energia",         "crit": 5, "prio": 5, "massa": 25, "comb": 3300, "energia": 90, "sensores": True},
-    {"nome": "Suporte de Vida",  "carga": "Suporte de Vida", "crit": 5, "prio": 4, "massa": 22, "comb": 2900, "energia": 80, "sensores": True},
-    {"nome": "Habitação",        "carga": "Habitacao",       "crit": 4, "prio": 4, "massa": 30, "comb": 3800, "energia": 75, "sensores": True},
     {"nome": "Comunicação",      "carga": "Comunicacao",     "crit": 3, "prio": 3, "massa": 10, "comb": 1500, "energia": 35, "sensores": True},
-    {"nome": "Médico",           "carga": "Medico",          "crit": 4, "prio": 3, "massa": 15, "comb": 1600, "energia": 70, "sensores": True},
-    {"nome": "Laboratório",      "carga": "Laboratorio",     "crit": 2, "prio": 2, "massa": 18, "comb": 2400, "energia": 80, "sensores": False},
-    {"nome": "Logística Beta",   "carga": "Logistica",       "crit": 2, "prio": 2, "massa": 14, "comb": 2000, "energia": 85, "sensores": True},
     {"nome": "Extração de Gelo", "carga": "Recursos",        "crit": 2, "prio": 1, "massa": 20, "comb": 2600, "energia": 80, "sensores": True},
+    {"nome": "Logística Alfa",   "carga": "Logistica",       "crit": 1, "prio": 5, "massa": 12, "comb": 1800, "energia": 85, "sensores": True},
+    {"nome": "Laboratório",      "carga": "Laboratorio",     "crit": 2, "prio": 2, "massa": 18, "comb": 2400, "energia": 80, "sensores": False},
+    {"nome": "Suporte de Vida",  "carga": "Suporte de Vida", "crit": 5, "prio": 4, "massa": 22, "comb": 2900, "energia": 80, "sensores": True},
+    {"nome": "Médico",           "carga": "Medico",          "crit": 4, "prio": 3, "massa": 15, "comb": 1600, "energia": 70, "sensores": True},
+    {"nome": "Energia",          "carga": "Energia",         "crit": 5, "prio": 5, "massa": 25, "comb": 3300, "energia": 90, "sensores": True},
+    {"nome": "Logística Beta",   "carga": "Logistica",       "crit": 2, "prio": 2, "massa": 14, "comb": 2000, "energia": 85, "sensores": True},
+    {"nome": "Habitação",        "carga": "Habitacao",       "crit": 4, "prio": 4, "massa": 30, "comb": 3800, "energia": 75, "sensores": True},
 ]
 
 locais = [
@@ -50,3 +50,18 @@ while True:
             break
         case _:
             print("opção invalida, tente novamente!")
+
+print("--- MÓDULOS CADASTRADOS ---")
+for modulo in modulos:
+    print(f"{modulo["nome"]} | carga: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
+    print(f"massa: {modulo["massa"]} t | combustível: {modulo["comb"]} kg | energia: {modulo["energia"]}% | sensores: {modulo["sensores"]}")
+    print("==========================================================")
+
+print("Iniciando organização da fila de pouso!")
+#Usando bubble sort por que e um algoritmo estavel
+n = len(modulos)
+for j in range(n-1):
+    for i in range(n-1):
+        if modulos[i]["prio"] < modulos[i+1]["prio"]:
+            modulos[i], modulos[i+1] = modulos[i+1], modulos[i]
+
