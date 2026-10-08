@@ -13,9 +13,9 @@ modulos = [
 ]
 
 locais = [
-    {"id": "LOC-A", "nome": "Planície Aurora", "lat": "8°N",  "dist_alt": 12, "vagas_prim": 3, "vagas_alt": 2, "tempestade": 5},
-    {"id": "LOC-B", "nome": "Cratera Siger",   "lat": "22°S", "dist_alt": 20, "vagas_prim": 2, "vagas_alt": 2, "tempestade": 10},
-    {"id": "LOC-C", "nome": "Vale Boreal",     "lat": "28°N", "dist_alt": 0,  "vagas_prim": 3, "vagas_alt": 0, "tempestade": 15},
+    {"id": "LOC-A", "nome": "Planície Aurora", "lat": "8°N",  "dist_alt": 12, "vagas_prim": 8, "vagas_alt": 2, "tempestade": 5},
+    {"id": "LOC-B", "nome": "Cratera Siger",   "lat": "22°S", "dist_alt": 20, "vagas_prim": 7, "vagas_alt": 2, "tempestade": 10},
+    {"id": "LOC-C", "nome": "Vale Boreal",     "lat": "28°N", "dist_alt": 0,  "vagas_prim": 9, "vagas_alt": 0, "tempestade": 15},
 ]
 
 print("==============================================================")
@@ -51,17 +51,25 @@ while True:
         case _:
             print("opção invalida, tente novamente!")
 
-print("--- MÓDULOS CADASTRADOS ---")
+print("\n--- MÓDULOS CADASTRADOS ---\n")
 for modulo in modulos:
     print(f"{modulo["nome"]} | carga: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
     print(f"massa: {modulo["massa"]} t | combustível: {modulo["comb"]} kg | energia: {modulo["energia"]}% | sensores: {modulo["sensores"]}")
     print("==========================================================")
 
-print("Iniciando organização da fila de pouso!")
+print("\nOrdenando módulos por prioridade (desempate: ordem de cadastro)...\n")
 #Usando bubble sort por que e um algoritmo estavel
 n = len(modulos)
 for j in range(n-1):
     for i in range(n-1):
         if modulos[i]["prio"] < modulos[i+1]["prio"]:
             modulos[i], modulos[i+1] = modulos[i+1], modulos[i]
+
+print("Fila de pouso montada:")
+
+for index,modulo in enumerate(modulos):
+    print(f"{index+ 1}° {modulo["nome"]} (prioridade {modulo["prio"]}) ")
+
+registador_de_falhas = []
+
 
