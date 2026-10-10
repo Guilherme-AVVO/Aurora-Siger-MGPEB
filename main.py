@@ -1,3 +1,5 @@
+from avalicao_modulos import *
+
 # Cadastro fora de ordem de propósito, para a ordenação ter trabalho a fazer.
 # A posição na lista desempata módulos com a mesma prioridade (ordem de chegada).
 modulos = [
@@ -36,7 +38,7 @@ while True:
         case 1:
             print(f"Local selecionado: {locais[0]["nome"]}")
             print(f"Área primária: {locais[0]["vagas_prim"]} vagas | Área alternativa: {locais[0]["vagas_alt"]} vagas")
-            print(f"Chance de tempestade de poeira: {locais[0]["tempestade"]}%")
+            print(f"Chance de tempestade de poeiri <= len(modulosa: {locais[0]["tempestade"]}%")
             break
         case 2:
             print(f"Local selecionado: {locais[1]["nome"]}")
@@ -53,7 +55,7 @@ while True:
 
 print("\n--- MÓDULOS CADASTRADOS ---\n")
 for modulo in modulos:
-    print(f"{modulo["nome"]} | carga: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
+    print(f"{modulo["nome"]} | cargi <= len(modulosa: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
     print(f"massa: {modulo["massa"]} t | combustível: {modulo["comb"]} kg | energia: {modulo["energia"]}% | sensores: {modulo["sensores"]}")
     print("==========================================================")
 
@@ -70,6 +72,62 @@ print("Fila de pouso montada:")
 for index,modulo in enumerate(modulos):
     print(f"{index+ 1}° {modulo["nome"]} (prioridade {modulo["prio"]}) ")
 
-registador_de_falhas = []
+pousados = []
+alerta = []
+em_espera = []
+av_modulos = modulos[:]
+
+while 0 < len(av_modulos):
+    print(f"\nAvaliando: {av_modulos[0]["nome"]} ({av_modulos[0]["carga"]}) | restam {len(av_modulos)} na fila\n")
+    # Avaliação S
+    s1, motivo_sensor = av_sensores(av_modulos[0])
+    s2, motivo_energia = av_energia(av_modulos[0])
+    if s1 == False:
+        print(f"[S]Sensores e energia ...... FALHA ({motivo_sensor})")
+        print(f">> MÓDULO EM ALERTA: {motivo_sensor}")
+        alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_sensor })
+        av_modulos.pop(0)
+        continue
+    elif s2 == False:
+        print(f"[S] Sensores e energia ...... FALHA (energia {av_modulos[0]["energia"]}% abaixo do mínimo de 40%)")
+        print(f">> MÓDULO EM ALERTA: {motivo_energia}")
+        alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_energia })
+        av_modulos.pop(0)
+        continue
+    else:
+        print(f"[S] Sensores e energia ...... OK (sensores operacionais, energia {av_modulos[0]["energia"]}%)")
+    # Avalição C
+    c,motivo_comb = av_combustivel(av_modulos[0])
+    if c == False:
+        print(f"[C] Combustível ............. FALHA ({av_modulos[0]["comb"]} kg < mínimo {av_modulos[0]["massa"] * 110} kg, margem {av_modulos[0]["comb"] - (av_modulos[0]["massa"]  * 110)} kg)")
+        print(f">> MÓDULO EM ALERTA: {motivo_comb}")
+        alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_comb })
+        av_modulos.pop(0)
+        continue
+    else:
+       print(f"[C] Combustível ............. OK ({av_modulos[0]["comb"]} kg ≥ mínimo {av_modulos[0]["massa"] * 110} kg, margem +{av_modulos[0]["comb"] - (av_modulos[0]["massa"]  * 110)} kg)")
+
+    # Avaliação T
+    t,motivo_tempestade,sorteio,chance = av_condicoes_atmosfericas(locais,opcao)
+    if t == False:
+        print(f"[T] Condições atmosféricas .. FALHA (sorteio {sorteio} ≤ {chance}%: tempestade de poeira)")
+        print(f">> MÓDULO EM ESPERA: {motivo_tempestade}")
+        em_espera.append({"nome": av_modulos[0]["nome"], "motivo": motivo_tempestade})
+        av_modulos.pop(0)
+        continue
+    else:
+        print(f"[T] Condições atmosféricas .. OK (sorteio {sorteio} > {chance}%: sem tempestade)")
+
+    #Avaliando A
+    a,local_pouso,loc,vagas = av_area_de_pouso(locais,opcao)
+    if a == False:
+        print(f"[A] Área de pouso ........... FALHA ({local_pouso})")
+        print(f">> MÓDULO EM ESPERA: sem vaga nas áreas de pouso")
+        em_espera.append({"nome": av_modulos[0]["nome"], "motivo": local_pouso})
+    else:
+        print(f"[A] Área de pouso ........... OK ({local_pouso}, restam {vagas} vagas)")
+        print(f">> POUSO AUTORIZADO na área {loc}")
+        pousados.append({"nome": av_modulos[0]["nome"], "local_pouso": local_pouso, "vaga": loc})
+    av_modulos.pop(0)
 
 
