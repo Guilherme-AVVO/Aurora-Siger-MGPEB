@@ -272,3 +272,4 @@ print("\n==============================================================")
 print(f"Encerrando MGPEB. Base Aurora Siger: {len(pousados)} de {len(modulos)} módulos em solo.")
 print("Bons pousos, colônia.")
 print("==============================================================")
+
