@@ -38,7 +38,7 @@ while True:
         case 1:
             print(f"Local selecionado: {locais[0]["nome"]}")
             print(f"Área primária: {locais[0]["vagas_prim"]} vagas | Área alternativa: {locais[0]["vagas_alt"]} vagas")
-            print(f"Chance de tempestade de poeiri <= len(modulosa: {locais[0]["tempestade"]}%")
+            print(f"Chance de tempestade de poeira: {locais[0]["tempestade"]}%")
             break
         case 2:
             print(f"Local selecionado: {locais[1]["nome"]}")
@@ -55,7 +55,7 @@ while True:
 
 print("\n--- MÓDULOS CADASTRADOS ---\n")
 for modulo in modulos:
-    print(f"{modulo["nome"]} | cargi <= len(modulosa: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
+    print(f"{modulo["nome"]} | carga: {modulo["carga"]} | prioridade: {modulo["prio"]} | criticidade: {modulo["crit"]}")
     print(f"massa: {modulo["massa"]} t | combustível: {modulo["comb"]} kg | energia: {modulo["energia"]}% | sensores: {modulo["sensores"]}")
     print("==========================================================")
 
@@ -75,6 +75,7 @@ for index,modulo in enumerate(modulos):
 pousados = []
 alerta = []
 em_espera = []
+historico = []
 av_modulos = modulos[:]
 
 while 0 < len(av_modulos):
@@ -83,15 +84,17 @@ while 0 < len(av_modulos):
     s1, motivo_sensor = av_sensores(av_modulos[0])
     s2, motivo_energia = av_energia(av_modulos[0])
     if s1 == False:
-        print(f"[S]Sensores e energia ...... FALHA ({motivo_sensor})")
+        print(f"[S] Sensores e energia ...... FALHA ({motivo_sensor})")
         print(f">> MÓDULO EM ALERTA: {motivo_sensor}")
         alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_sensor })
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "ALERTA", "detalhe": motivo_sensor})
         av_modulos.pop(0)
         continue
     elif s2 == False:
         print(f"[S] Sensores e energia ...... FALHA (energia {av_modulos[0]["energia"]}% abaixo do mínimo de 40%)")
         print(f">> MÓDULO EM ALERTA: {motivo_energia}")
         alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_energia })
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "ALERTA", "detalhe": motivo_energia})
         av_modulos.pop(0)
         continue
     else:
@@ -102,6 +105,7 @@ while 0 < len(av_modulos):
         print(f"[C] Combustível ............. FALHA ({av_modulos[0]["comb"]} kg < mínimo {av_modulos[0]["massa"] * 110} kg, margem {av_modulos[0]["comb"] - (av_modulos[0]["massa"]  * 110)} kg)")
         print(f">> MÓDULO EM ALERTA: {motivo_comb}")
         alerta.append({"nome": av_modulos[0]["nome"], "motivo": motivo_comb })
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "ALERTA", "detalhe": motivo_comb})
         av_modulos.pop(0)
         continue
     else:
@@ -113,21 +117,54 @@ while 0 < len(av_modulos):
         print(f"[T] Condições atmosféricas .. FALHA (sorteio {sorteio} ≤ {chance}%: tempestade de poeira)")
         print(f">> MÓDULO EM ESPERA: {motivo_tempestade}")
         em_espera.append({"nome": av_modulos[0]["nome"], "motivo": motivo_tempestade})
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "ESPERA", "detalhe": motivo_tempestade})
         av_modulos.pop(0)
         continue
     else:
         print(f"[T] Condições atmosféricas .. OK (sorteio {sorteio} > {chance}%: sem tempestade)")
 
     #Avaliando A
-    a,local_pouso,loc,vagas = av_area_de_pouso(locais,opcao)
+    a,motivo_local,area,vagas = av_area_de_pouso(locais,opcao)
     if a == False:
-        print(f"[A] Área de pouso ........... FALHA ({local_pouso})")
+        print(f"[A] Área de pouso ........... FALHA ({motivo_local})")
         print(f">> MÓDULO EM ESPERA: sem vaga nas áreas de pouso")
-        em_espera.append({"nome": av_modulos[0]["nome"], "motivo": local_pouso})
+        em_espera.append({"nome": av_modulos[0]["nome"], "motivo": motivo_local})
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "ESPERA", "detalhe": motivo_local})
+        av_modulos.pop(0)
+        continue
     else:
-        print(f"[A] Área de pouso ........... OK ({local_pouso}, restam {vagas} vagas)")
-        print(f">> POUSO AUTORIZADO na área {loc}")
-        pousados.append({"nome": av_modulos[0]["nome"], "local_pouso": local_pouso, "vaga": loc})
+        print(f"[A] Área de pouso ........... OK ({motivo_local}, restam {vagas} vagas)")
+        print(f">> POUSO AUTORIZADO na área {area}")
+        pousados.append({"nome": av_modulos[0]["nome"], "motivo_local": motivo_local, "area": area})
+        historico.append({"nome": av_modulos[0]["nome"], "resultado": "AUTORIZADO", "detalhe": area})
     av_modulos.pop(0)
 
+print("\n==============================================================")
+print(f"RELATÓRIO FINAL DA OPERAÇÃO DE POUSO - {locais[opcao-1]["nome"]}")
+print("==============================================================\n")
+print(f"POUSADOS ({len(pousados)}):")
+if len(pousados) == 0:
+    print("(nenhum módulo)")
+else:
+    for p in pousados:
+        print(f"- {p["nome"]} | área {p["area"]}")
+print("\n================================================================\n")
+print(f"EM ESPERA ({len(em_espera)}):")
+if len(em_espera) == 0:
+    print("(nenhum módulo)")
+else:
+    for e in em_espera:
+        print(f"- {e["nome"]} | motivo: {e["motivo"]}")
+print("\n================================================================\n")
+print(f"EM ALERTA ({len(alerta)}):")
+if len(alerta) == 0:
+    print("(nenhum módulo)")
+else:
+    for item in alerta:
+        print(f"- {item["nome"]} | motivo: {item["motivo"]}")
 
+print("\n--- HISTÓRICO DE DECISÕES (mais recente primeiro) ---\n")
+while len(historico) > 0:
+    n = len(historico)
+    registro = historico.pop()
+    print(f"{n}. {registro["nome"]} -> {registro["resultado"]} | {registro["detalhe"]}")
